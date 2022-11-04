@@ -1,29 +1,54 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Models\Blog;
 use App\Models\Country;
 use App\Models\Category;
+use App\Models\Psych;
+
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
-use App\Models\Psych;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 
+use App\Services\Blog\BlogService;
+use App\Services\Category\CategoryService;
+use App\Services\Country\CountryService;
+use App\Services\Psych\PsychService;
+
+use App\Http\Requests\Admin\StoreBlogRequest;
+use App\Http\Requests\Admin\UpdateBlogRequest;
+
 class BlogController extends Controller
 {
+    private $blogService;
+    private $categoryService;
+    private $countryService;
+    private $psychService;
+
+    public $sidebar = 'blog';
+    public $sort = '/admin/blog/sorting';
+
+    public function __construct( blogService $blogService, categoryService $categoryService,
+    countryService $countryService, psychService $psychService ) {
+        $this->blogService = $blogService;
+        $this->categoryService = $categoryService;
+        $this->countryService = $countryService;
+        $this->psychService = $psychService;
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $blog_list = Blog::where('country_id', Auth::user()->country_id)->orderBy('sort')->get();
-        $sidebar = 'blog';
-        $sort = '/admin/blog/sorting';
+    public function index() {
+        $blog_list = $this->blogService->getAllArticles();
+        $sidebar=$this->sidebar;
+        $sort=$this->sort;
         return view('admin.blog.index', compact('blog_list', 'sidebar', 'sort'));
     }
 
@@ -34,11 +59,10 @@ class BlogController extends Controller
      */
     public function create()
     {
-        $user = Auth::user();
-        $sidebar = 'blog';
-        $country_list = Country::all();
-        $category_list = Category::where('lang_id', $user->country_id)->where('parent', NULL)->get();
-        $author_list = Psych::where('country_id', $user->country_id)->get();
+        $sidebar=$this->sidebar;
+        $country_list = $this->countryService->getAllCountries();
+        $category_list = $this->categoryService->getParentCategories();
+        $author_list = $this->psychService->getAllByCountry();
         return view('admin.blog.create', compact('sidebar', 'country_list', 'category_list', 'author_list'));
     }
 
@@ -48,30 +72,9 @@ class BlogController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreBlogRequest $request)
     {
-        $formFields = $request->validate([
-            'name' => ['required', 'max:160', Rule::unique('blog', 'name')],
-            'url' => ['required', 'max:160', Rule::unique('blog', 'url')],
-            'short_text' => 'max:255',
-            'content' => 'required',
-            'meta_title' => 'max:255',
-            'meta_description' => 'max:255',
-            'meta_keywords' => 'max:255',
-            'country_id' => 'required',
-            'is_active' => 'required',
-            'psych_id' => 'required',
-            'category_id' => 'required',
-        ]);
-
-        $formFields['url'] =  Str::of($request->url)->slug('-');
-
-        if($request->hasFile('image')) {
-            $formFields['image'] = $request->file('image')->store('img', 'public');
-        }
-
-        Blog::create($formFields);
-
+        $this->blogService->storeArticle($request);
         return redirect('/admin/blog')->with('message', __('message.blog_created'));
     }
 
@@ -83,12 +86,11 @@ class BlogController extends Controller
      */
     public function edit($id)
     {
-        $user = Auth::user();
-        $sidebar = 'blog';
-        $country_list = Country::all();
-        $category_list = Category::where('lang_id', $user->country_id)->where('parent', NULL)->get();
-        $author_list = Psych::where('country_id', $user->country_id)->get();
-        $blog_data = Blog::find($id);
+        $sidebar=$this->sidebar;
+        $country_list = $this->countryService->getAllCountries();
+        $category_list = $this->categoryService->getParentCategories();
+        $author_list = $this->psychService->getAllByCountry();
+        $blog_data = $this->blogService->getItem($id);
         return view('admin.blog.edit', compact('sidebar', 'country_list', 'blog_data', 'author_list', 'category_list'));
     }
 
@@ -99,34 +101,9 @@ class BlogController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateBlogRequest $request, $id)
     {
-        $blog_data = Blog::find($id);
-
-        $formFields = $request->validate([
-            'name' => 'required|max:150',
-            'url' => 'required|max:150',
-            'short_text' => 'max:255',
-            'content' => 'required',
-            'meta_title' => 'max:255',
-            'meta_description' => 'max:255',
-            'meta_keywords' => 'max:255',
-            'lang_id' => 'required',
-            'is_active' => 'required',
-            'category_id' => 'required',
-        ]);
-
-        $formFields['url'] =  Str::of($request->url)->slug('-');
-
-        if(isset($blog_data->image) && $request->hasFile('image')) {
-            File::delete($blog_data->image);  // don't work
-        }
-
-        if($request->hasFile('image')) {
-            $formFields['image'] = $request->file('image')->store('img', 'public');
-        }
-
-        $blog_data->update($formFields);
+        $this->blogService->updateArticle($request, $id);
 
         return redirect('/admin/blog')->with('message', __('message.blog_updated'));
 
@@ -140,15 +117,7 @@ class BlogController extends Controller
      */
     public function destroy($id)
     {
-        $blog = Blog::find($id);
-
-        $image_path = $blog->image;
-        if(File::exists($image_path)) {
-            File::delete($image_path);
-        }
-
-        $blog->delete();
-
+        $this->blogService->delete($id);
         return redirect('/admin/blog')->with('message', __('message.blog_deleted'));
     }
 
