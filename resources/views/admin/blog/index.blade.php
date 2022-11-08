@@ -53,7 +53,7 @@
                                 <div class="font-semibold text-left">{{ __('admin.display') }}</div>
                             </th>
                             <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
-                                <div class="font-semibold text-left">Actions</div>
+                                <div class="font-semibold text-left">{{ __('admin.actions') }}</div>
                             </th>
                         </tr>
                     </thead>
@@ -86,7 +86,7 @@
                             </td>
                             <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                                 <div class="font-medium">
-                                    <a class="text-light-blue-500" target="_blank" href="">Ссылка</a>
+                                    <a class="text-light-blue-500" target="_blank" href="">{{ __('admin.link') }}</a>
                                 </div>
                             </td>
                             <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">

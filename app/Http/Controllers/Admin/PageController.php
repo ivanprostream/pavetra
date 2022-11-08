@@ -2,18 +2,28 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Page;
-use App\Models\Country;
-use App\Models\PageType;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
+
+use App\Services\Page\PageService;
+use App\Services\Country\CountryService;
+
+use App\Http\Requests\Admin\StorePageRequest;
+use App\Http\Requests\Admin\UpdatePageRequest;
 
 class PageController extends Controller
 {
+    private $pageService;
+    private $countryService;
+
+    public $sidebar = 'pages';
+    public $sort = '/admin/page/sorting';
+
+    public function __construct( countryService $countryService, pageService $pageService ) {
+        $this->countryService = $countryService;
+        $this->pageService = $pageService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -21,9 +31,9 @@ class PageController extends Controller
      */
     public function index()
     {
-        $page_list = Page::where('lang_id', Auth::user()->country_id)->where('parent', NULL)->orderBy('sort')->get();
-        $sidebar = 'pages';
-        $sort = '/admin/page/sorting';
+        $page_list = $this->pageService->getParentPages();
+        $sidebar = $this->sidebar;
+        $sort = $this->sort;
         return view('admin.pages.index', compact('page_list', 'sidebar', 'sort'));
     }
 
@@ -34,11 +44,10 @@ class PageController extends Controller
      */
     public function create()
     {
-        $user = Auth::user();
-        $sidebar = 'pages';
-        $country_list = Country::all();
-        $template_list = PageType::all();
-        $page_list = Page::where('lang_id', $user = Auth::user()->country_id)->get();
+        $sidebar = $this->sidebar;
+        $country_list = $this->countryService->getAllCountries();
+        $page_list = $this->pageService->getParentPages();
+        $template_list = $this->pageService->getPageTemplates();
         return view('admin.pages.create', compact('sidebar', 'country_list', 'template_list', 'page_list'));
     }
 
@@ -48,33 +57,9 @@ class PageController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StorePageRequest $request)
     {
-        $formFields = $request->validate([
-            'name' => 'required|max:150',
-            'url' => 'required|max:150',
-            'short_text' => 'max:255',
-            'content' => 'required',
-            'meta_title' => 'max:255',
-            'meta_description' => 'max:255',
-            'meta_keywords' => 'max:255',
-            'lang_id' => 'required',
-            'page_type_id' => 'required',
-            'is_active' => 'required',
-            'in_menu' => 'required',
-            'parent' => ''
-        ]);
-
-        $formFields['url'] =  Str::of($request->url)->slug('-');
-        $formFields['path'] = $this->createPagePath( $formFields['parent'], $formFields['url'] );
-
-
-        if($request->hasFile('image')) {
-            $formFields['image'] = $request->file('image')->store('img', 'public');
-        }
-
-        Page::create($formFields);
-
+        $this->pageService->storePage($request);
         return redirect('/admin/pages')->with('message', __('message.page_created'));
     }
 
@@ -86,9 +71,11 @@ class PageController extends Controller
      */
     public function show($id)
     {
-        $page_list = Page::where('lang_id', Auth::user()->country_id)->where('parent', $id)->orderBy('sort')->get();
-        $sidebar = 'pages';
-        $sort = '/admin/page/sorting';
+
+        $country_list = $this->countryService->getAllCountries();
+        $page_list = $this->pageService->getChildCategories($id);
+        $sidebar = $this->sidebar;
+        $sort = $this->sort;
         return view('admin.pages.show', compact('page_list', 'sidebar', 'sort'));
     }
 
@@ -100,11 +87,11 @@ class PageController extends Controller
      */
     public function edit($id)
     {
-        $sidebar = 'pages';
-        $country_list = Country::all();
-        $template_list = PageType::all();
-        $page_list = Page::where('lang_id', Auth::user()->country_id)->get();
-        $page_data = Page::find($id);
+        $sidebar = $this->sidebar;
+        $country_list = $this->countryService->getAllCountries();
+        $template_list = $this->pageService->getPageTemplates();
+        $page_list = $this->pageService->getParentPages();
+        $page_data = $this->pageService->getItem($id);
         return view('admin.pages.edit', compact('sidebar', 'country_list', 'template_list', 'page_list', 'page_data'));
     }
 
@@ -115,42 +102,10 @@ class PageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdatePageRequest $request, $id)
     {
-        $page_data = Page::find($id);
-
-        $formFields = $request->validate([
-            'name' => 'required|max:150',
-            'url' => 'required|max:150',
-            'short_text' => 'max:255',
-            'content' => 'required',
-            'meta_title' => 'max:255',
-            'meta_description' => 'max:255',
-            'meta_keywords' => 'max:255',
-            'lang_id' => 'required',
-            'page_type_id' => 'required',
-            'is_active' => 'required',
-            'in_menu' => 'required',
-            'parent' => ''
-        ]);
-
-        $formFields['url'] =  Str::of($request->url)->slug('-');
-        $formFields['path'] = $this->createPagePath( $formFields['parent'], $formFields['url'] );
-
-        if(isset($page_data->image) && $request->hasFile('image')) {
-            File::delete($page_data->image);  // don't work
-        }
-
-        if($request->hasFile('image')) {
-
-            $formFields['image'] = $request->file('image')->store('img', 'public');
-        }
-
-        $result = $page_data->update($formFields);
-
+        $this->pageService->updatePage($request, $id);
         return redirect('/admin/pages')->with('message', __('message.page_updated'));
-
-
     }
 
     /**
@@ -161,15 +116,7 @@ class PageController extends Controller
      */
     public function destroy($id)
     {
-        $page = Page::find($id);
-
-        $image_path = $page->image;
-        if(File::exists($image_path)) {
-            File::delete($image_path);
-        }
-
-        $page->delete();
-
+        $this->pageService->delete($id);
         return redirect('/admin/pages')->with('message', __('message.page_deleted'));
     }
 
@@ -178,7 +125,7 @@ class PageController extends Controller
         if(empty($parent)) {
             return $url;
         } else {
-        $page = Page::find($parent);
+        $page = $this->pageService->getItem($parent);
             return $page->path.'/'.$url;
         }
     }
@@ -192,7 +139,7 @@ class PageController extends Controller
 
             foreach ($list as $key => $value) {
                 $id = explode("=", $value);
-                $model = Page::find($id[1]);
+                $model = $this->pageService->getItem($id[1]);
                 $model->sort = $key;
                 $model->save();
             }

@@ -1,4 +1,6 @@
 <?php $__env->startSection('title', $page_data->meta_title); ?>
+<?php $__env->startSection('description', $page_data->meta_description); ?>
+<?php $__env->startSection('keywords', $page_data->meta_keywords); ?>
 
 <?php $__env->startSection('main'); ?>
 
@@ -11,7 +13,7 @@
                 <div class="pxp-container">
                     <div class="row justify-content-center">
                         <div class="col-12 col-xl-10 col-xxl-9">
-                            <h1 class="text-white text-center"><?php echo e($page_data->meta_title); ?></h1>
+                            <h1 class="text-white text-center">Помощь настоящих психологов</h1>
 
                             <div class="pxp-hero-form pxp-hero-form-round pxp-large mt-4 mt-lg-5">
                                 <form class="row gx-3 align-items-center" action="<?php echo e(route('search')); ?>" method="POST">
@@ -63,7 +65,7 @@
                                         <div class="input-group mb-3 mb-lg-0">
                                             <span class="input-group-text"><span class="fa fa-comments-o"></span></span>
                                             <select class="form-select">
-                                                <option selected="">Онлайн/оффлайн</option>
+                                                <option selected="">Онлайн / оффлайн</option>
                                                 <option>ОНЛАЙН (дистанционно, удаленно, из любой точки мира)</option>
                                                 <option>ОФЛАЙН (в кабинете, в конкретном городе)</option>
                                                 <optgroup label="Беларусь">
@@ -97,9 +99,10 @@
                                     <div class="col-12 col-md-3">
                                         <div class="mb-3 mb-lg-0">
                                             <select class="form-select">
-                                                <option>Пол важен (лишь бы помог)</option>
-                                                <option>Психолог мужчина</option>
-                                                <option>Психолог женщина</option>
+                                                <option>Пол психолога</option>
+                                                <option>Пол неважен, лишь бы помог</option>
+                                                <option>Психолог-мужчина</option>
+                                                <option>Психолог-женщина</option>
                                             </select>
                                         </div>
                                     </div>
@@ -217,8 +220,8 @@
                             <div class="pxp-services-1-item-icon">
                                 <img src="<?php echo e(asset('img/icons/icon-1.png')); ?>" alt="Найти себя">
                             </div>
-                            <div class="pxp-services-1-item-title">Найти себя</div>
-                            <div class="pxp-services-1-item-text pxp-text-light">Разобраться в себе и СВОИХ желаниях</div>
+                            <div class="pxp-services-1-item-title">Найти и глубже узнать себя</div>
+                            <div class="pxp-services-1-item-text pxp-text-light">Разобраться в себе и своих желаниях</div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-xl-3 pxp-services-1-item-container">
@@ -226,7 +229,7 @@
                             <div class="pxp-services-1-item-icon">
                                 <img src="<?php echo e(asset('img/icons/icon-8.png')); ?>" alt="Понять психосоматику">
                             </div>
-                            <div class="pxp-services-1-item-title">Понять психосоматику</div>
+                            <div class="pxp-services-1-item-title">Понять психосоматику, справиться с РПП</div>
                             <div class="pxp-services-1-item-text pxp-text-light">Услышать свое тело и помочь себе быть здоровым</div>
                         </div>
                     </div>
@@ -235,7 +238,7 @@
                             <div class="pxp-services-1-item-icon">
                                 <img src="<?php echo e(asset('img/icons/icon-3.png')); ?>" alt="Пережить расставание">
                             </div>
-                            <div class="pxp-services-1-item-title">Пережить расставание</div>
+                            <div class="pxp-services-1-item-title">Пережить расставание, развод, кризис</div>
                             <div class="pxp-services-1-item-text pxp-text-light">Выйти из кризисной ситуации обновленным и с желанием жить дальше</div>
                         </div>
                     </div>
@@ -244,7 +247,7 @@
                             <div class="pxp-services-1-item-icon">
                                 <img src="<?php echo e(asset('img/icons/icon-4.png')); ?>" alt="Повысить самооценку">
                             </div>
-                            <div class="pxp-services-1-item-title">Повысить самооценку</div>
+                            <div class="pxp-services-1-item-title">Повысить самооценку и поверить в себя</div>
                             <div class="pxp-services-1-item-text pxp-text-light">Понять, откуда растут ноги у неуверенности в себе, и преодолеть ее</div>
                         </div>
                     </div>
@@ -280,8 +283,8 @@
                             <div class="pxp-services-1-item-icon">
                                 <img src="<?php echo e(asset('img/icons/icon-7.png')); ?>" alt="Сделать трудный выбор">
                             </div>
-                            <div class="pxp-services-1-item-title">Сделать трудный выбор</div>
-                            <div class="pxp-services-1-item-text pxp-text-light">Прекратить сомневаться и принять решение</div>
+                            <div class="pxp-services-1-item-title">Преодолеть эмоциональную зависимость</div>
+                            <div class="pxp-services-1-item-text pxp-text-light">Справиться с патологической привязанностью</div>
                         </div>
                     </div>
 

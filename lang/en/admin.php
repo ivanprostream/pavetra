@@ -103,5 +103,6 @@ return [
     'edit_blog' => 'Edit blog element',
     'author' => 'Author',
     'without_author' => 'Without author',
-    'select_category' => 'Select a category'
+    'select_category' => 'Select a category',
+    'feedback' => 'Feedback'
 ];

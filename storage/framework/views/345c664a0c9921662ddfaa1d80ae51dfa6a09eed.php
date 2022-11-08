@@ -29,7 +29,7 @@
                                         <a role="button" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">О проекте</a>
                                         <ul class="dropdown-menu">
                                             <?php $__currentLoopData = $item->children; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $child): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <li class="nav-item"><a href="<?php echo e($child->path); ?>"><?php echo e($child->name); ?></a></li>
+                                            <li class="nav-item"><a href="/<?php echo e($child->path); ?>"><?php echo e($child->name); ?></a></li>
                                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </ul>
                                     </li>
@@ -51,7 +51,7 @@
                             <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown"><?php echo e($item->name); ?></a>
                             <ul class="dropdown-menu">
                                 <?php $__currentLoopData = $item->children; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $child): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <li><a class="dropdown-item" href="<?php echo e($child->path); ?>"><?php echo e($child->name); ?></a></li>
+                                <li><a class="dropdown-item" href="/<?php echo e($child->path); ?>"><?php echo e($child->name); ?></a></li>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </ul>
                         </li>

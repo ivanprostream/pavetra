@@ -118,9 +118,9 @@ require __DIR__.'/auth.php';
 
 Route::group([ 'namespace'  => 'App\Http\Controllers\Site' ], function () {
 
-    //Route::get('/', 'HomeController@comingsoon')->name('home');
+    Route::get('/', 'HomeController@comingsoon');
 
-    Route::get('/', 'HomeController@index');
+    //Route::get('/', 'HomeController@index');
 
     Route::get('/search', 'CatalogController@search')->name('search');
 

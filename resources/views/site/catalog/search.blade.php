@@ -1,5 +1,7 @@
 @extends('site.layouts.app')
-@section('title', '')
+@section('title', 'Поиск психолога')
+@section('description', 'Поиск психолога')
+@section('keywords', 'Поиск психолога')
 
 @section('main')
 

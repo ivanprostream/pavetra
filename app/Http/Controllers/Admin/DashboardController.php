@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    public $sidebar = 'dashboard';
+
     public function index() {
-        $sidebar = 'dashboard';
+        $sidebar = $this->sidebar;
         return view('admin.index', compact('sidebar'));
     }
 }

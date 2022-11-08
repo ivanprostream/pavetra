@@ -2,7 +2,7 @@
     <div class="pxp-container">
         <div class="pxp-header-container">
             <div class="pxp-logo">
-                <a href="<?php echo e(route('home')); ?>" class="pxp-animate"><img width="140" src="<?php echo e(asset('public/img/logo-white.png')); ?>"></a>
+                <a href="/" class="pxp-animate"><img width="140" src="<?php echo e(asset('public/img/logo-white.png')); ?>"></a>
             </div>
             <div class="pxp-nav-trigger navbar d-xl-none flex-fill">
                 <a role="button" data-bs-toggle="offcanvas" data-bs-target="#pxpMobileNav" aria-controls="pxpMobileNav">
@@ -13,7 +13,7 @@
                 <div class="offcanvas offcanvas-start pxp-nav-mobile-container" tabindex="-1" id="pxpMobileNav">
                     <div class="offcanvas-header">
                         <div class="pxp-logo">
-                            <a href="<?php echo e(route('home')); ?>" class="pxp-animate"><img width="140" src="<?php echo e(asset('public/img/logo-white.png')); ?>"></a>
+                            <a href="/" class="pxp-animate"><img width="140" src="<?php echo e(asset('public/img/logo-white.png')); ?>"></a>
                         </div>
                         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                     </div>

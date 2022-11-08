@@ -29,7 +29,7 @@
                                         <a role="button" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">О проекте</a>
                                         <ul class="dropdown-menu">
                                             @foreach ($item->children as $child)
-                                            <li class="nav-item"><a href="{{ $child->path }}">{{ $child->name }}</a></li>
+                                            <li class="nav-item"><a href="/{{ $child->path }}">{{ $child->name }}</a></li>
                                             @endforeach
                                         </ul>
                                     </li>
@@ -51,7 +51,7 @@
                             <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">{{ $item->name }}</a>
                             <ul class="dropdown-menu">
                                 @foreach ($item->children as $child)
-                                <li><a class="dropdown-item" href="{{ $child->path }}">{{ $child->name }}</a></li>
+                                <li><a class="dropdown-item" href="/{{ $child->path }}">{{ $child->name }}</a></li>
                                 @endforeach
                             </ul>
                         </li>

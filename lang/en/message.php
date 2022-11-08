@@ -21,6 +21,15 @@ return [
     'category_deleted' => 'Category deleted successfully!',
     'blog_created' => 'Element of blog created successfully!',
     'blog_updated' => 'Element of blog updated successfully!',
-    'blog_deleted' => 'Element of blog deleted successfully!'
-
+    'blog_deleted' => 'Element of blog deleted successfully!',
+    'country_created' => 'Country created successfully!',
+    'country_updated' => 'Country updated successfully!',
+    'lang_created' => 'Language created successfully!',
+    'lang_updated' => 'Language updated successfully!',
+    'constant_created' => 'Constant created successfully!',
+    'constant_deleted' => 'Constant deleted successfully!',
+    'settings_updated' => 'Settings updated successfully!',
+    'user_created' => 'User created successfully!',
+    'user_updated' => 'User updated successfully!',
+    'user_deleted' => 'User deleted successfully!',
 ];

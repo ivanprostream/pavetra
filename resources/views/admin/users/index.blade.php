@@ -26,8 +26,11 @@
 
         </div>
 
+
     </div>
 
+    @include('admin.partials.flash-message')
+    <br>
     <!-- Cards -->
     <div class="grid grid-cols-12 gap-6">
 

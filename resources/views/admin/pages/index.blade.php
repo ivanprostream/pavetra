@@ -7,15 +7,15 @@
 
     <!-- Page header -->
     <div class="sm:flex sm:justify-between sm:items-center mb-5">
-        @include('admin.partials.flash-message')
+
         <!-- Left: Title -->
         <div class="mb-4 sm:mb-0">
             <h1 class="text-2xl md:text-3xl text-gray-800 font-bold">{{ __('admin.pages') }}</h1>
-
         </div>
 
         <!-- Right: Actions -->
         <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+
             <!-- Add button -->
             <a class="btn bg-indigo-500 hover:bg-indigo-600 text-white" href="/admin/page_create">
                 <svg class="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
@@ -30,6 +30,7 @@
 
     <!-- Table -->
     <div class="bg-white shadow-lg rounded-sm border border-gray-200 mb-8">
+        @include('admin.partials.flash-message')
         <div x-data="handleSelect">
 
             <!-- Table -->
@@ -53,7 +54,7 @@
                                 <div class="font-semibold text-left">{{ __('admin.display') }}</div>
                             </th>
                             <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
-                                <div class="font-semibold text-left">Actions</div>
+                                <div class="font-semibold text-left">{{ __('admin.actions') }}</div>
                             </th>
                         </tr>
                     </thead>

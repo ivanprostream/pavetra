@@ -7,12 +7,25 @@ use App\Models\User;
 use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Services\User\UserService;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+
 use Illuminate\Support\Facades\Hash;
+use App\Services\Country\CountryService;
+use App\Http\Requests\Admin\StoreUserRequest;
 
 class UserController extends Controller
 {
+    private $userService;
+
+    public $sidebar = 'users';
+
+    public function __construct( userService $userService, countryService $countryService ) {
+        $this->userService = $userService;
+        $this->countryService = $countryService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -20,8 +33,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user_list = User::all();
-        $sidebar = 'users';
+        $user_list = $this->userService->allUsers();
+        $sidebar = $this->sidebar;
         return view('admin.users.index', compact('user_list', 'sidebar'));
     }
 
@@ -32,10 +45,10 @@ class UserController extends Controller
      */
     public function create()
     {
-        $sidebar = 'users';
+        $sidebar = $this->sidebar;
         $roles = Role::all();
         $lang_list = Lang::all();
-        $country_list = Country::all();
+        $country_list = $this->countryService->getAllCountries();
         return view('admin.users.create', compact('sidebar', 'roles', 'lang_list', 'country_list'));
     }
 
@@ -45,26 +58,10 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $formFields = $request->validate([
-            'name' => 'required',
-            'phone' => 'required',
-            'gender' => 'required',
-            'email' => ['required', 'email', Rule::unique('users', 'email')],
-            'country_id' => 'required',
-            'lang_id' => 'required',
-            'password' => 'required|confirmed|min:6',
-            'password_confirmation' => 'required|min:6',
-        ]);
-
-        $formFields['password'] = Hash::make($request->password);
-
-        $user = User::create($formFields);
-
-        $user->syncRoles($request->get('role'));
-
-        return redirect('/admin/users')->with('message', 'User created successfully!');
+        $this->userService->storeUser($request);
+        return redirect('/admin/users')->with('message', __('message.user_created'));
     }
 
     /**
@@ -75,11 +72,11 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user_data = User::find($id);
-        $sidebar = 'users';
+        $user_data = $this->userService->getItem($id);
+        $sidebar = $this->sidebar;
         $roles = Role::all();
         $lang_list = Lang::all();
-        $country_list = Country::all();
+        $country_list = $this->countryService->getAllCountries();
 
         return view('admin.users.edit', compact('user_data', 'sidebar', 'roles', 'lang_list', 'country_list'));
     }
@@ -93,29 +90,8 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $user_data = User::find($id);
-
-        $formFields = $request->validate([
-            'name' => 'required',
-            'phone' => 'required',
-            'gender' => 'required',
-            'email' => 'required|email',
-            'country_id' => 'required',
-            'lang_id' => 'required'
-        ]);
-
-        $password = $request->get('password');
-        if(empty($password)) {
-            $formFields['password'] = $user_data->password;
-        } else {
-            $formFields['password'] = Hash::make($request->password);
-        }
-
-        $user_data->update($formFields);
-
-        $user_data->syncRoles($request->get('role'));
-
-        return redirect('/admin/users')->with('message', 'User updated successfully!');
+        $this->userService->updateUser($request);
+        return redirect('/admin/users')->with('message', __('message.user_updated'));
     }
 
     /**
@@ -125,8 +101,7 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-        $user_data = User::find($id);
-        $user_data->delete();
-        return redirect('/admin/users')->with('message', 'User deleted successfully!');
+        $this->userService->delete($id);
+        return redirect('/admin/users')->with('message', __('message.user_deleted'));
     }
 }

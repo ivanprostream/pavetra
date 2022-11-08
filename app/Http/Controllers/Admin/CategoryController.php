@@ -2,18 +2,29 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Country;
-use App\Models\Category;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
+
+use App\Services\Category\CategoryService;
+use App\Services\Country\CountryService;
+
+use App\Http\Requests\Admin\StoreCategoryRequest;
+use App\Http\Requests\Admin\UpdateCategoryRequest;
 
 class CategoryController extends Controller
 {
+
+    private $categoryService;
+    private $countryService;
+
+    public $sidebar = 'categories';
+    public $sort = '/admin/category/sorting';
+
+    public function __construct( categoryService $categoryService, countryService $countryService ) {
+        $this->categoryService = $categoryService;
+        $this->countryService = $countryService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -21,9 +32,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $category_list = Category::where('lang_id', Auth::user()->country_id)->where('parent', NULL)->orderBy('sort')->get();
-        $sidebar = 'categories';
-        $sort = '/admin/category/sorting';
+        $category_list = $this->categoryService->getParentCategories();
+        $sidebar = $this->sidebar;
+        $sort = $this->sort;
         return view('admin.categories.index', compact('category_list', 'sidebar', 'sort'));
     }
 
@@ -34,10 +45,9 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $user = Auth::user();
-        $sidebar = 'categories';
-        $country_list = Country::all();
-        $category_list = Category::where('parent', NULL)->where('lang_id', $user->country_id)->get();
+        $sidebar = $this->sidebar;
+        $country_list = $this->countryService->getAllCountries();
+        $category_list = $this->categoryService->getParentCategories();
         return view('admin.categories.create', compact('sidebar', 'country_list', 'category_list'));
     }
 
@@ -47,29 +57,9 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $formFields = $request->validate([
-            'name' => 'required|max:150',
-            'url' => 'required|max:150',
-            'short_text' => 'max:255',
-            'content' => 'required',
-            'meta_title' => 'max:255',
-            'meta_description' => 'max:255',
-            'meta_keywords' => 'max:255',
-            'lang_id' => 'required',
-            'is_active' => 'required',
-            'in_tags' => 'required',
-        ]);
-
-        $formFields['url'] =  Str::of($request->url)->slug('-');
-
-        if($request->hasFile('image')) {
-            $formFields['image'] = $request->file('image')->store('img', 'public');
-        }
-
-        Category::create($formFields);
-
+        $this->categoryService->storeCategory($request);
         return redirect('/admin/categories')->with('message', __('message.category_created'));
     }
 
@@ -81,9 +71,9 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $category_list = Category::where('lang_id', Auth::user()->country_id)->where('parent', $id)->orderBy('sort')->get();
-        $sidebar = 'categories';
-        $sort = '/admin/category/sorting';
+        $category_list = $this->categoryService->getChildCategories($id);
+        $sidebar = $this->sidebar;
+        $sort = $this->sort;
         return view('admin.categories.show', compact('category_list', 'sidebar', 'sort'));
     }
 
@@ -95,10 +85,10 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
-        $sidebar = 'categories';
-        $country_list = Country::all();
-        $category_list = Category::where('parent', NULL)->where('lang_id', Auth::user()->country_id)->get();
-        $category_data = Category::find($id);
+        $sidebar = $this->sidebar;
+        $country_list = $this->countryService->getAllCountries();
+        $category_list = $this->categoryService->getParentCategories();
+        $category_data = $this->categoryService->getItem($id);
         return view('admin.categories.edit', compact('sidebar', 'country_list', 'category_list', 'category_data'));
     }
 
@@ -109,35 +99,9 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateCategoryRequest $request, $id)
     {
-        $category_data = Category::find($id);
-
-        $formFields = $request->validate([
-            'name' => 'required|max:150',
-            'url' => 'required|max:150',
-            'short_text' => 'max:255',
-            'content' => 'required',
-            'meta_title' => 'max:255',
-            'meta_description' => 'max:255',
-            'meta_keywords' => 'max:255',
-            'lang_id' => 'required',
-            'is_active' => 'required',
-            'in_tags' => 'required',
-        ]);
-
-        $formFields['url'] =  Str::of($request->url)->slug('-');
-
-        if(isset($category_data->image) && $request->hasFile('image')) {
-            File::delete($category_data->image);  // don't work
-        }
-
-        if($request->hasFile('image')) {
-            $formFields['image'] = $request->file('image')->store('img', 'public');
-        }
-
-        $category_data->update($formFields);
-
+        $this->categoryService->updateCategory($request, $id);
         return redirect('/admin/categories')->with('message', __('message.category_updated'));
 
     }
@@ -150,14 +114,7 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        $category = Category::find($id);
-
-        $image_path = $category->image;
-        if(File::exists($image_path)) {
-            File::delete($image_path);
-        }
-
-        $category->delete();
+        $this->categoryService->delete($id);
 
         return redirect('/admin/categories')->with('message', __('message.category_deleted'));
     }
@@ -171,7 +128,7 @@ class CategoryController extends Controller
 
             foreach ($list as $key => $value) {
                 $id = explode("=", $value);
-                $model = Category::find($id[1]);
+                $model = $this->categoryService->getItem($id[1]);
                 $model->sort = $key;
                 $model->save();
             }

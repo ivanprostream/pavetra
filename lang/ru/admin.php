@@ -103,6 +103,7 @@ return [
     'edit_blog' => 'Редактировать статью',
     'author' => 'Автор',
     'without_author' => 'Без автора',
-    'select_category' => 'Выберите категорию'
+    'select_category' => 'Выберите категорию',
+    'feedback' => 'Обратная связь'
 
 ];

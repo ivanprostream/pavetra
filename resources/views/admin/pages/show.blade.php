@@ -55,7 +55,7 @@
                                 <div class="font-semibold text-left">{{ __('admin.display') }}</div>
                             </th>
                             <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
-                                <div class="font-semibold text-left">Actions</div>
+                                <div class="font-semibold text-left">{{ __('admin.actions') }}</div>
                             </th>
                         </tr>
                     </thead>
@@ -78,7 +78,7 @@
                             </td>
                             <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                                 @if ($item->image)
-                                    <img width="100" src="{{ asset('storage/'. $item->image) }}" alt="{{ $item->name }}">
+                                    <img width="100" src="{{ asset('public/storage/'. $item->image) }}" alt="{{ $item->name }}">
                                 @endif
                             </td>
                             <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">

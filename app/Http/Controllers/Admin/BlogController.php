@@ -2,18 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Blog;
-use App\Models\Country;
-use App\Models\Category;
-use App\Models\Psych;
-
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
-
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 
 use App\Services\Blog\BlogService;
 use App\Services\Category\CategoryService;
@@ -106,7 +96,6 @@ class BlogController extends Controller
         $this->blogService->updateArticle($request, $id);
 
         return redirect('/admin/blog')->with('message', __('message.blog_updated'));
-
     }
 
     /**
@@ -121,6 +110,7 @@ class BlogController extends Controller
         return redirect('/admin/blog')->with('message', __('message.blog_deleted'));
     }
 
+
     public function sorting(Request $request) {
         $array = $request->only('sort');
 
@@ -130,7 +120,7 @@ class BlogController extends Controller
 
             foreach ($list as $key => $value) {
                 $id = explode("=", $value);
-                $model = Blog::find($id[1]);
+                $model = $this->blogService->getItem($id[1]);
                 $model->sort = $key;
                 $model->save();
             }
