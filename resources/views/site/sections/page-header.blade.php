@@ -13,7 +13,7 @@
                 <div class="offcanvas offcanvas-start pxp-nav-mobile-container" tabindex="-1" id="pxpMobileNav">
                     <div class="offcanvas-header">
                         <div class="pxp-logo">
-                            <a href="/" class="pxp-animate"><img width="140" src="{{ asset('public/img/logo-white.png') }}"></a>
+                            <a href="/" class="pxp-animate"><img width="140" src="{{ asset('public/img/logo-blue.png') }}"></a>
                         </div>
                         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                     </div>
